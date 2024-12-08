@@ -21,7 +21,6 @@
 12. `RESUME [robot_id]` - Возобновление работы робота.
 13. `SET_SPEED [robot_id] [speed]` - Установка скорости движения робота.
 14. `SET_CLEANING_MODE [robot_id] [mode]` - Установка режима уборки (normal, deep, или quick).
-15. `DETECT_OBSTACLE [robot_id]` - Обнаружение препятствий и их координаты.
 
 `robot_id` – идентификатор робота.
 `distance` – расстояние (в метрах).
