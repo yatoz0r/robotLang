@@ -45,6 +45,7 @@ int pause(robot_t *robot);
 int resume(robot_t *robot);
 int set_speed(robot_t *robot, float speed);
 int set_cleaning_mode(robot_t *robot, cleaning_mode_t mode);
+void set_speed_based_on_mode(robot_t *robot);
 int detect_obstacle(robot_t *robot);
 
 #endif // ROBOT_H

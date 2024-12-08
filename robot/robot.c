@@ -1,4 +1,5 @@
 #include "robot.h"
+#include <math.h>
 
 int validate_non_negative(float value)
 {
@@ -194,7 +195,7 @@ int pause(robot_t *robot)
     }
 
     robot->status = ROBOT_STATUS_PAUSED;
-    robot->speed = 0.0
+    robot->speed = 0.0;
     printf("Robot %d paused.\n", robot->id);
     return 0;
 }

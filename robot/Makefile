@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O2 -Wall -Wno-implicit -Wno-return-type -Wno-unused-function
+CFLAGS = -O2 -Wall -Wno-implicit -Wno-return-type -Wno-unused-function -lm
 
 LEX = lex
 BISON = bison
