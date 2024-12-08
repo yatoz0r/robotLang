@@ -28,6 +28,7 @@ typedef struct _robot
     float speed;
     float x_coord;
     float y_coord;
+    float angle;
 } robot_t;
 
 robot_t *initialize_robot(int id);
