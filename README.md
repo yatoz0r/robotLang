@@ -91,6 +91,7 @@ typedef struct _robot
     float speed;
     float x_coord;
     float y_coord;
+    float angle;
 } robot_t;
 
 robot_t *initialize_robot(int id);
@@ -107,6 +108,7 @@ int pause(robot_t *robot);
 int resume(robot_t *robot);
 int set_speed(robot_t *robot, float speed);
 int set_cleaning_mode(robot_t *robot, cleaning_mode_t mode);
+void set_speed_based_on_mode(robot_t *robot);
 int detect_obstacle(robot_t *robot);
 
 #endif // ROBOT_H
@@ -252,21 +254,21 @@ build/robot_compiler < test.txt > test.c
 
 ## 9. Запуск программы
 ```bash 
-gcc test.c robot.c -o test
+gcc test.c robot.c -o test -lm
 ./test
 Robot 5 initialized.
 Robot 5 moving forward by 2.50 meters.
-Robot 5 turning left by 90.00 degrees.
+Robot 5 turning left by 90.00 degrees. New angle: 90.00 degrees.
 Robot 5 started cleaning.
 Robot 5 moving forward by 3.00 meters.
-Robot 5 battery level: 100.00%
+Robot 5 battery level: 99.45%
 Robot 5 status report:
 1. Status: Cleaning
 2. Cleaning Mode: Normal
-3. Battery Level: 100.00%
-4. Speed: 0.00 m/s
-5. Coordinates: (0.00, 5.50)
-Robot 5 returning to base.
+3. Battery Level: 99.45%
+4. Speed: 0.50 m/s
+5. Coordinates: (2.50, 3.00)
+6. Angle: 90.00 degrees
 ```
 
 ## 10. Makefile
