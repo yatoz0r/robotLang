@@ -4,129 +4,148 @@
 Целевая платформа: Unix-подобная ОС с компилятором GCC. Язык программирования будет транслироваться в язык C.
 
 ## 2. Разработка языка программирования
-Язык предоставляет команды для упрощения создания, хранения и применения рецептов (алгоритмов) приготовления чая.
+Язык предоставляет команды для управления роботом-уборщиком.
 
 Команды:
-1. `PREPARE_CUP [cup_id] [size]` - подготовка кружки заданного размера (`small`, `medium`, или `large`).
-2. `ADD_WATER [cup_id] [N]` - добавление `N` мл кипятка.
-3. `BREW_TEA [cup_id] [type]` - заваривание чая типа `type` (`green`, `black`, или `pink`).
-4. `ADD_SUGAR [cup_id] [N]` - добавление `N` чайных ложек сахара.
-5. `ADD_HONEY [cup_id] [N]` - добавление `N` чайных ложек мёда.
-6. `ADD_MILK [cup_id] [N]` - добавление `N` мл молока.
-7. `ADD_LEMON [cup_id] [N]` - добавление `N` долек лимона.
-8. `SERVE [cup_id]` - подать чай (вывести свойства чая).
-9. `EMPTY_CUP [cup_id]` - опустошить кружку.
+1. `INITIALIZE [number]` - Инициализация робота с заданным идентификатором.
+2. `MOVE_FORWARD [robot_id] [distance]` - Движение вперед на заданное расстояние.
+3. `MOVE_BACKWARD [robot_id] [distance]` - Движение назад на заданное расстояние.
+4. `TURN_LEFT [robot_id] [angle]` - Поворот налево на заданный угол.
+5. `TURN_RIGHT [robot_id] [angle]` - Поворот направо на заданный угол.
+6. `START_CLEANING [robot_id]` - Начало уборки.
+7. `STOP_CLEANING [robot_id]` - Остановка уборки.
+8. `RETURN_TO_BASE [robot_id]` - Возврат на базу для зарядки.
+9. `CHECK_BATTERY [robot_id]` - Проверка уровня заряда батареи.
+10. `REPORT_STATUS [robot_id]` - Отчет о текущем состоянии робота (включая координаты, уровень заряда и статус уборки).
+11. `PAUSE [robot_id]` - Пауза в работе робота.
+12. `RESUME [robot_id]` - Возобновление работы робота.
+13. `SET_SPEED [robot_id] [speed]` - Установка скорости движения робота.
+14. `SET_CLEANING_MODE [robot_id] [mode]` - Установка режима уборки (normal, deep, или quick).
+15. `DETECT_OBSTACLE [robot_id]` - Обнаружение препятствий и их координаты.
 
-`cup_id` - идентификатор кружки.
+`robot_id` – идентификатор робота.
+`distance` – расстояние (в метрах).
+`angle` – угол (в градусах).
+`speed` – скорость (в метрах секунду).
 
 ## 3. Ручная трансляция под целевую платформу
 Для примера ручной трансляции языка была написана следующая программа:
 ```txt
-prepare_cup cup1 small
-add_water cup1 50
-brew_tea cup1 pink
-add_honey cup1 2
-serve cup1
-empty_cup cup1
+initialize_robot 5
+move_forward R5 2.5
+turn_left R5 90
+start_cleaning R5
+move_forward R5 3.0
+check_battery R5
+report_status R5
+return_to_base R5 
 ```
 
 Ниже представлен код, транслированный на язык C:
 ```C
 // manual.c
-#include "stie.h"
+#include "robot.h"
 
-int main()
+int main(int argc, char const *argv[])
 {
-    cup_t *someCup = prepare_cup(CUP_SIZE_SMALL);
-    add_water(someCup, 50);
-    brew_tea(someCup, TEA_TYPE_PINK);
-    add_honey(someCup, 2);
-    serve(someCup);
-    empty_cup(someCup);
-    return 0;
-}
+        robot_t *R5 = initialize_robot(5);
+        move_forward(R5, 2.50);
+        turn_left(R5, 90.00);
+        start_cleaning(R5);
+        move_forward(R5, 3.00);
+        check_battery(R5);
+        report_status(R5);
+        return_to_base(R5);
+        return 0;
+} 
 ```
 
 ```C
-// stie.h
-#ifndef STIE_H
-#define STIE_H
+#ifndef ROBOT_H
+#define ROBOT_H
 
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef enum _cup_size
+typedef enum _robot_status
 {
-    CUP_SIZE_SMALL,
-    CUP_SIZE_MEDIUM,
-    CUP_SIZE_LARGE,
-} cup_size_t;
+    ROBOT_STATUS_IDLE,
+    ROBOT_STATUS_CLEANING,
+    ROBOT_STATUS_PAUSED,
+    ROBOT_STATUS_RETURNING,
+} robot_status_t;
 
-typedef enum _tea_type
+typedef enum _cleaning_mode
 {
-    TEA_TYPE_GREEN,
-    TEA_TYPE_BLACK,
-    TEA_TYPE_PINK,
-} tea_type_t;
+    CLEANING_MODE_NORMAL,
+    CLEANING_MODE_DEEP,
+    CLEANING_MODE_QUICK,
+} cleaning_mode_t;
 
-typedef struct _cup
+typedef struct _robot
 {
-    cup_size_t size;
-    tea_type_t type;
+    int id;
+    robot_status_t status;
+    cleaning_mode_t mode;
+    float battery_level;
+    float speed;
+    float x_coord;
+    float y_coord;
+} robot_t;
 
-    int water;
-    int sugar;
-    int honey;
-    int milk;
-    int lemon;
-} cup_t;
+robot_t *initialize_robot(int id);
+int move_forward(robot_t *robot, float distance);
+int move_backward(robot_t *robot, float distance);
+int turn_left(robot_t *robot, float angle);
+int turn_right(robot_t *robot, float angle);
+int start_cleaning(robot_t *robot);
+int stop_cleaning(robot_t *robot);
+int return_to_base(robot_t *robot);
+int check_battery(robot_t *robot);
+int report_status(robot_t *robot);
+int pause(robot_t *robot);
+int resume(robot_t *robot);
+int set_speed(robot_t *robot, float speed);
+int set_cleaning_mode(robot_t *robot, cleaning_mode_t mode);
+int detect_obstacle(robot_t *robot);
 
-cup_t *prepare_cup(cup_size_t size);
-int add_water(cup_t *cup, int value);
-int brew_tea(cup_t *cup, tea_type_t value);
-int add_sugar(cup_t *cup, int value);
-int add_honey(cup_t *cup, int value);
-int add_milk(cup_t *cup, int value);
-int add_lemon(cup_t *cup, int value);
-int empty_cup(cup_t *cup);
-int serve(cup_t *cup);
-
-#endif
+#endif // ROBOT_H
 ```
 
 ## 4. Разработка лексического анализатора
 Для разработанного языка был написан лексический анализатор:
 
 ```lex
-%{
+ %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "stie.tab.h"
+#include "robot.tab.h"
 %}
 
 %%
-"prepare_cup" { return PREPARE_CUP; }
-"add_water" { return ADD_WATER; }
-"brew_tea" { return BREW_TEA; }
-"add_sugar" { return ADD_SUGAR; }
-"add_honey" { return ADD_HONEY; }
-"add_milk" { return ADD_MILK; }
-"add_lemon" { return ADD_LEMON; }
-"serve" { return SERVE; }
-"empty_cup" { return EMPTY_CUP; }
+"initialize_robot" { return INITIALIZE_ROBOT; }
+"move_forward" { return MOVE_FORWARD; }
+"move_backward" { return MOVE_BACKWARD; }
+"turn_left" { return TURN_LEFT; } "turn_right" { return TURN_RIGHT; }
+"start_cleaning" { return START_CLEANING; }
+"stop_cleaning" { return STOP_CLEANING; }
+"return_to_base" { return RETURN_TO_BASE; }
+"check_battery" { return CHECK_BATTERY; }
+"report_status" { return REPORT_STATUS; }
+"pause" { return PAUSE; }
+"resume" { return RESUME; }
+"set_speed" { return SET_SPEED; }
+"set_cleaning_mode" { return SET_CLEANING_MODE; }
+"detect_obstacle" { return DETECT_OBSTACLE; }
 
-"small" { return CUP_SIZE_SMALL; }
-"medium" { return CUP_SIZE_MEDIUM; }
-"large" { return CUP_SIZE_LARGE; }
+"normal" { return CLEANING_MODE_NORMAL; }
+"deep" { return CLEANING_MODE_DEEP; }
+"quick" { return CLEANING_MODE_QUICK; }
 
-"black" { return TEA_TYPE_BLACK; }
-"green" { return TEA_TYPE_GREEN; }
-"pink" { return TEA_TYPE_PINK; }
-
-
-[0-9]+ {
-    yylval.number = atoi(yytext);
+[0-9]+(\.[0-9]+)? {
+    yylval.number = atof(yytext);
     return NUMBER;
 }
 
@@ -137,6 +156,10 @@ int serve(cup_t *cup);
 
 [ \n\t]+ { /* Skip */ }
 %%
+
+int yywrap() {
+    return 1;
+} 
 ```
 
 ## 5. Разработка грамматики синтаксического разбора
@@ -147,29 +170,31 @@ TODO
 ```yyac
 %{
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 %}
 
 %union {
-    int number;
+    float number;
     char identifier[1024];
 }
 
 %token <number> NUMBER;
 %token <identifier> IDENTIFIER;
 
-%token PREPARE_CUP ADD_WATER BREW_TEA;
-%token ADD_SUGAR ADD_HONEY ADD_MILK;
-%token ADD_LEMON SERVE EMPTY_CUP;
+%token INITIALIZE_ROBOT MOVE_FORWARD MOVE_BACKWARD TURN_LEFT TURN_RIGHT;
+%token START_CLEANING STOP_CLEANING RETURN_TO_BASE CHECK_BATTERY REPORT_STATUS;
+%token PAUSE RESUME SET_SPEED SET_CLEANING_MODE DETECT_OBSTACLE;
 
-%token CUP_SIZE_SMALL CUP_SIZE_MEDIUM CUP_SIZE_LARGE;
-%token TEA_TYPE_BLACK TEA_TYPE_GREEN TEA_TYPE_PINK;
+%token CLEANING_MODE_NORMAL CLEANING_MODE_DEEP CLEANING_MODE_QUICK;
 
-%type <identifier> str oper tea_size tea_type;
+%type <identifier> str oper;
+%type <identifier> cleaning_mode;
 
 %%
 
 program: str {
-    printf("#include \"stie.h\"\n\n"); /* headers */
+    printf("#include \"robot.h\"\n\n"); /* headers */
     printf("int main(int argc, char const *argv[])\n{\n\t%s\n\treturn 0;\n}\n", $1); /* entrypoint */
 }
 
@@ -177,29 +202,31 @@ str: oper       { sprintf($$, "%s", $1); } /* singleline */
     | oper str  { sprintf($$, "%s\n\t%s", $1, $2); }  /* multiline */
     ;
 
-oper: PREPARE_CUP IDENTIFIER tea_size       { sprintf($$, "cup_t *%s = prepare_cup(%s);", $2, $3); }
-    | ADD_WATER IDENTIFIER NUMBER           { sprintf($$, "add_water(%s, %d);", $2, $3); }
-    | BREW_TEA IDENTIFIER tea_type          { sprintf($$, "brew_tea(%s, %s);", $2, $3); }
-    | ADD_SUGAR IDENTIFIER NUMBER           { sprintf($$, "add_sugar(%s, %d);", $2, $3); }
-    | ADD_HONEY IDENTIFIER NUMBER           { sprintf($$, "add_honey(%s, %d);", $2, $3); }
-    | ADD_MILK IDENTIFIER  NUMBER           { sprintf($$, "add_milk(%s, %d);", $2, $3); }
-    | ADD_LEMON IDENTIFIER NUMBER           { sprintf($$, "add_lemon(%s, %d);", $2, $3); }
-    | SERVE IDENTIFIER                      { sprintf($$, "serve(%s);", $2); }
-    | EMPTY_CUP IDENTIFIER                  { sprintf($$, "empty_cup(%s);", $2); }
+oper: INITIALIZE_ROBOT NUMBER                     { sprintf($$, "robot_t *R%d = initialize_robot(%d);", (int)$2, (int)$2); }
+    | MOVE_FORWARD IDENTIFIER NUMBER              { sprintf($$, "move_forward(%s, %.2f);", $2, $3); }
+    | MOVE_BACKWARD IDENTIFIER NUMBER             { sprintf($$, "move_backward(%s, %.2f);", $2, $3); }
+    | TURN_LEFT IDENTIFIER NUMBER                 { sprintf($$, "turn_left(%s, %.2f);", $2, $3); }
+    | TURN_RIGHT IDENTIFIER NUMBER                { sprintf($$, "turn_right(%s, %.2f);", $2, $3); }
+    | START_CLEANING IDENTIFIER                   { sprintf($$, "start_cleaning(%s);", $2); }
+    | STOP_CLEANING IDENTIFIER                    { sprintf($$, "stop_cleaning(%s);", $2); }
+    | RETURN_TO_BASE IDENTIFIER                   { sprintf($$, "return_to_base(%s);", $2); }
+    | CHECK_BATTERY IDENTIFIER                    { sprintf($$, "check_battery(%s);", $2); }
+    | REPORT_STATUS IDENTIFIER                    { sprintf($$, "report_status(%s);", $2); }
+    | PAUSE IDENTIFIER                            { sprintf($$, "pause(%s);", $2); }
+    | RESUME IDENTIFIER                           { sprintf($$, "resume(%s);", $2); }
+    | SET_SPEED IDENTIFIER NUMBER                 { sprintf($$, "set_speed(%s, %.2f);", $2, $3); }
+    | SET_CLEANING_MODE IDENTIFIER cleaning_mode  { sprintf($$, "set_cleaning_mode(%s, %s);", $2, $3); }
+    | DETECT_OBSTACLE IDENTIFIER                  { sprintf($$, "detect_obstacle(%s);", $2); }
     ;
 
-tea_size: CUP_SIZE_SMALL    { sprintf($$, "CUP_SIZE_SMALL"); }
-    | CUP_SIZE_MEDIUM       { sprintf($$, "CUP_SIZE_MEDIUM"); }
-    | CUP_SIZE_LARGE        { sprintf($$, "CUP_SIZE_LARGE"); }
+cleaning_mode: CLEANING_MODE_NORMAL    { sprintf($$, "CLEANING_MODE_NORMAL"); }
+    | CLEANING_MODE_DEEP               { sprintf($$, "CLEANING_MODE_DEEP"); }
+    | CLEANING_MODE_QUICK              { sprintf($$, "CLEANING_MODE_QUICK"); }
     ;
 
-tea_type: TEA_TYPE_BLACK    { sprintf($$, "TEA_TYPE_BLACK"); }
-    | TEA_TYPE_GREEN        { sprintf($$, "TEA_TYPE_GREEN"); }
-    | TEA_TYPE_PINK         { sprintf($$, "TEA_TYPE_PINK"); }
-    ;
 %%
 
-yyerror(char* s)
+void yyerror(char* s)
 {
     printf("Error: %s.\n", s);
 }
@@ -208,68 +235,66 @@ int main(int argc, char *argv[])
 {
     yyparse();
     return 0;
-}
+} 
 ```
 
 ## 7. Компиляция компилятора
 ```bash
 rm -rf build
-mkdir -p build
-bison -d -o build/stie.tab.c stie.y
-lex -o build/lex.yy.c stie.l
-clang-18 build/lex.yy.c build/stie.tab.c -lfl -o build/stie_compiler -Wno-implicit
+bison -d -o build/robot.tab.c robot.y
+lex -o build/lex.yy.c robot.l
 ```
 
 ## 8. Компилирование программы на своем языке
 ```bash
-build/stie_compiler < test.txt > test.c
+build/robot_compiler < test.txt > test.c
 ```
 
 ## 9. Запуск программы
 ```bash 
-clang-18 test.c stie.c -o test
+gcc test.c robot.c -o test
 ./test
-Preparing a small cup...
-Adding 50 ml of water...
-Brewing pink tea...
-Adding 2 teaspoons of honey...
-Serving tea!
-1. Cup size: small
-2. Water: 50 ml
-3. Tea type: pink
-4. Sugar: 0 teaspoons
-5. Honey: 2 teaspoons
-6. Milk: 0 ml
-7. Lemon: 0 slices
-Cup is empty now.
+Robot 5 initialized.
+Robot 5 moving forward by 2.50 meters.
+Robot 5 turning left by 90.00 degrees.
+Robot 5 started cleaning.
+Robot 5 moving forward by 3.00 meters.
+Robot 5 battery level: 100.00%
+Robot 5 status report:
+1. Status: Cleaning
+2. Cleaning Mode: Normal
+3. Battery Level: 100.00%
+4. Speed: 0.00 m/s
+5. Coordinates: (0.00, 5.50)
+Robot 5 returning to base.
 ```
 
 ## 10. Makefile
 ```Makefile
-CC = clang-18
+CC = gcc
 CFLAGS = -O2 -Wall -Wno-implicit -Wno-return-type -Wno-unused-function
 
 LEX = lex
 BISON = bison
 
-# output directory (for .gitignore)
+# Output directory (for .gitignore)
 OUTPUT_DIR = build
 
-# compile manual
+# Compile manual
 MANUAL_OUTPUT = ${OUTPUT_DIR}/manual
 MANUAL_SOURCES = manual.c
 
-# compile lex
+# Compile lex
 LEX_OUTPUT = ${OUTPUT_DIR}/lex.yy.c
-LEX_SOURCES = stie.l
+LEX_SOURCES = robot.l
 
-# compile bison
-BISON_OUTPUT = ${OUTPUT_DIR}/stie.tab.c
-BISON_OUTPUT_HEADER = ${OUTPUT_DIR}/stie.tab.h
-BISON_SOURCES = stie.y
+# Compile bison
+BISON_OUTPUT = ${OUTPUT_DIR}/robot.tab.c
+BISON_OUTPUT_HEADER = ${OUTPUT_DIR}/robot.tab.h
+BISON_SOURCES = robot.y
 
-# compile compiler
-COMPILER_OUTPUT = ${OUTPUT_DIR}/stie_compiler
+# Compile compiler
+COMPILER_OUTPUT = ${OUTPUT_DIR}/robot_compiler
 COMPILER_SOURCES = ${LEX_OUTPUT} ${BISON_OUTPUT}
 
 .PHONY: all lex test clean
@@ -279,27 +304,26 @@ all: clean lex
 lex: ${BISON_OUTPUT} ${LEX_OUTPUT} ${COMPILER_OUTPUT}
 
 ${MANUAL_OUTPUT}: ${MANUAL_SOURCES}
-	@mkdir -p ${OUTPUT_DIR}
-	${CC} $^ -o $@ ${CFLAGS}
+        @mkdir -p ${OUTPUT_DIR}
+        ${CC} $^ -o $@ ${CFLAGS}
 
 ${BISON_OUTPUT}: ${BISON_SOURCES}
-	@mkdir -p ${OUTPUT_DIR}
-	${BISON} -d -o $@ $^
+        @mkdir -p ${OUTPUT_DIR}
+        ${BISON} -d -o $@ $^
 
 ${LEX_OUTPUT}: ${LEX_SOURCES}
-	@mkdir -p ${OUTPUT_DIR}
-	${LEX} -o $@ $^
+        @mkdir -p ${OUTPUT_DIR}
+        ${LEX} -o $@ $^
 
 ${COMPILER_OUTPUT}: ${COMPILER_SOURCES}
-	@${CC} $^ -lfl -o $@ ${CFLAGS}
-	@rm -f ${COMPILER_SOURCES} ${BISON_OUTPUT_HEADER}
-
+        @${CC} $^ -lfl -o $@ ${CFLAGS}
+        @rm -f ${BISON_OUTPUT_HEADER}
 test: ${COMPILER_OUTPUT}
-	@$^ < test.txt > test.c
-	@${CC} test.c stie.c -o test
-	@./test
-	@rm -f test.c test
+        @${COMPILER_OUTPUT} < test.txt > test.c
+        @${CC} test.c robot.c -o test
+        @./test
+        @rm -f test.c test
 
 clean:
-	rm -rf ${OUTPUT_DIR}
+rm -rf ${OUTPUT_DIR}
 ```
