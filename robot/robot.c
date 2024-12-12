@@ -165,7 +165,7 @@ int check_battery(robot_t *robot)
     }
 
     printf("Robot %d battery level: %.2f%%\n", robot->id, robot->battery_level);
-    return 0;
+    return (int)robot->battery_level;
 }
 
 int report_status(robot_t *robot)

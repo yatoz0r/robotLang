@@ -1,8 +1,8 @@
-initialize_robot 5
-move_forward R5 2.5
-turn_left R5 90
-start_cleaning R5
-move_forward R5 3.0
-check_battery R5
-report_status R5
-return_to_base R5
+initialize_robot 1
+if check_battery R1 < 20 then return_to_base R1 else start_cleaning R1
+move_forward R1 3.0
+pause R1
+resume R1
+move_backward R1 1.5
+stop_cleaning R1
+report_status R1

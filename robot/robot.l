@@ -23,6 +23,17 @@
 "set_cleaning_mode" { return SET_CLEANING_MODE; }
 "detect_obstacle" { return DETECT_OBSTACLE; }
 
+"if" { return IF; }
+"then" { return THEN; }
+"else" { return ELSE; }
+
+"<" { return LT; }
+">" { return GT; }
+"<=" { return LE; }
+">=" { return GE; }
+"==" { return EQ; }
+"!=" { return NE; }
+
 "normal" { return CLEANING_MODE_NORMAL; }
 "deep" { return CLEANING_MODE_DEEP; }
 "quick" { return CLEANING_MODE_QUICK; }

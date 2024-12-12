@@ -11,16 +11,19 @@
 
 %token <number> NUMBER;
 %token <identifier> IDENTIFIER;
+%token <identifier> LT GT LE GE EQ NE;
 
 %token INITIALIZE_ROBOT MOVE_FORWARD MOVE_BACKWARD TURN_LEFT TURN_RIGHT;
 %token START_CLEANING STOP_CLEANING RETURN_TO_BASE CHECK_BATTERY REPORT_STATUS;
 %token PAUSE RESUME SET_SPEED SET_CLEANING_MODE DETECT_OBSTACLE;
+%token <identifier> IF THEN ELSE;
 
 %token CLEANING_MODE_NORMAL CLEANING_MODE_DEEP CLEANING_MODE_QUICK;
 
-%type <identifier> str oper;
+%type <identifier> str oper if_stmt;
 %type <identifier> cleaning_mode;
-
+%type <identifier> expr;
+%type <identifier> func_call;
 %%
 
 program: str {
@@ -30,9 +33,10 @@ program: str {
 
 str: oper       { sprintf($$, "%s", $1); } /* singleline */
     | oper str  { sprintf($$, "%s\n\t%s", $1, $2); }  /* multiline */
+    | if_stmt   { sprintf($$, "%s", $1); } /* if statement */
     ;
 
-oper: INITIALIZE_ROBOT NUMBER                 	  { sprintf($$, "robot_t *R%d = initialize_robot(%d);", (int)$2, (int)$2); }
+oper: INITIALIZE_ROBOT NUMBER	                  { sprintf($$, "robot_t *R%d = initialize_robot(%d);", (int)$2, (int)$2); }
     | MOVE_FORWARD IDENTIFIER NUMBER              { sprintf($$, "move_forward(%s, %.2f);", $2, $3); }
     | MOVE_BACKWARD IDENTIFIER NUMBER             { sprintf($$, "move_backward(%s, %.2f);", $2, $3); }
     | TURN_LEFT IDENTIFIER NUMBER                 { sprintf($$, "turn_left(%s, %.2f);", $2, $3); }
@@ -47,6 +51,25 @@ oper: INITIALIZE_ROBOT NUMBER                 	  { sprintf($$, "robot_t *R%d = i
     | SET_SPEED IDENTIFIER NUMBER                 { sprintf($$, "set_speed(%s, %.2f);", $2, $3); }
     | SET_CLEANING_MODE IDENTIFIER cleaning_mode  { sprintf($$, "set_cleaning_mode(%s, %s);", $2, $3); }
     | DETECT_OBSTACLE IDENTIFIER                  { sprintf($$, "detect_obstacle(%s);", $2); }
+    ;
+
+if_stmt: IF expr THEN str ELSE str { sprintf($$, "if (%s) {\n\t%s\n} else {\n\t%s\n}", $2, $4, $6);}
+    | IF expr THEN str { sprintf($$, "if (%s) {\n\t%s\n}", $2, $4);}
+    ;
+
+expr: IDENTIFIER EQ NUMBER { sprintf($$, "%s == %.2f", $1, $3); }
+    | IDENTIFIER NE NUMBER { sprintf($$, "%s != %.2f", $1, $3); }
+    | IDENTIFIER LT NUMBER { sprintf($$, "%s < %.2f", $1, $3); }
+    | IDENTIFIER GT NUMBER { sprintf($$, "%s > %.2f", $1, $3); }
+    | IDENTIFIER LE NUMBER { sprintf($$, "%s <= %.2f", $1, $3); }
+    | IDENTIFIER GE NUMBER { sprintf($$, "%s >= %.2f", $1, $3); }
+    | func_call LT NUMBER { sprintf($$, "%s < %.2f", $1, $3); }
+    | func_call GT NUMBER { sprintf($$, "%s > %.2f", $1, $3); }
+    | func_call LE NUMBER { sprintf($$, "%s <= %.2f", $1, $3); }
+    | func_call GE NUMBER { sprintf($$, "%s >= %.2f", $1, $3); }
+    ;
+
+func_call: CHECK_BATTERY IDENTIFIER { sprintf($$, "check_battery(%s)", $2); }
     ;
 
 cleaning_mode: CLEANING_MODE_NORMAL    { sprintf($$, "CLEANING_MODE_NORMAL"); }
