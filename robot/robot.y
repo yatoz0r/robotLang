@@ -57,13 +57,7 @@ if_stmt: IF expr THEN str ELSE str { sprintf($$, "if (%s) {\n\t%s\n} else {\n\t%
     | IF expr THEN str { sprintf($$, "if (%s) {\n\t%s\n}", $2, $4);}
     ;
 
-expr: IDENTIFIER EQ NUMBER { sprintf($$, "%s == %.2f", $1, $3); }
-    | IDENTIFIER NE NUMBER { sprintf($$, "%s != %.2f", $1, $3); }
-    | IDENTIFIER LT NUMBER { sprintf($$, "%s < %.2f", $1, $3); }
-    | IDENTIFIER GT NUMBER { sprintf($$, "%s > %.2f", $1, $3); }
-    | IDENTIFIER LE NUMBER { sprintf($$, "%s <= %.2f", $1, $3); }
-    | IDENTIFIER GE NUMBER { sprintf($$, "%s >= %.2f", $1, $3); }
-    | func_call LT NUMBER { sprintf($$, "%s < %.2f", $1, $3); }
+expr: func_call LT NUMBER { sprintf($$, "%s < %.2f", $1, $3); }
     | func_call GT NUMBER { sprintf($$, "%s > %.2f", $1, $3); }
     | func_call LE NUMBER { sprintf($$, "%s <= %.2f", $1, $3); }
     | func_call GE NUMBER { sprintf($$, "%s >= %.2f", $1, $3); }
