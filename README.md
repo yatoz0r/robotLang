@@ -131,7 +131,8 @@ int detect_obstacle(robot_t *robot);
 "initialize_robot" { return INITIALIZE_ROBOT; }
 "move_forward" { return MOVE_FORWARD; }
 "move_backward" { return MOVE_BACKWARD; }
-"turn_left" { return TURN_LEFT; } "turn_right" { return TURN_RIGHT; }
+"turn_left" { return TURN_LEFT; }
+"turn_right" { return TURN_RIGHT; }
 "start_cleaning" { return START_CLEANING; }
 "stop_cleaning" { return STOP_CLEANING; }
 "return_to_base" { return RETURN_TO_BASE; }
@@ -142,6 +143,23 @@ int detect_obstacle(robot_t *robot);
 "set_speed" { return SET_SPEED; }
 "set_cleaning_mode" { return SET_CLEANING_MODE; }
 "detect_obstacle" { return DETECT_OBSTACLE; }
+
+"if" { return IF; }
+"then" { return THEN; }
+"else" { return ELSE; }
+
+"(" {return LS; }
+")" {return RS; }
+
+"{" { return LFS; }
+"}" { return RFS; }
+
+"<" { return LT; }
+">" { return GT; }
+"<=" { return LE; }
+">=" { return GE; }
+"==" { return EQ; }
+"!=" { return NE; }
 
 "normal" { return CLEANING_MODE_NORMAL; }
 "deep" { return CLEANING_MODE_DEEP; }
@@ -162,7 +180,7 @@ int detect_obstacle(robot_t *robot);
 
 int yywrap() {
     return 1;
-} 
+}
 ```
 
 ## 5. Разработка грамматики синтаксического разбора
@@ -184,16 +202,20 @@ TODO
 
 %token <number> NUMBER;
 %token <identifier> IDENTIFIER;
+%token <identifier> LT GT LE GE EQ NE;
+%token <identifier> LS RS LFS RFS;
 
 %token INITIALIZE_ROBOT MOVE_FORWARD MOVE_BACKWARD TURN_LEFT TURN_RIGHT;
 %token START_CLEANING STOP_CLEANING RETURN_TO_BASE CHECK_BATTERY REPORT_STATUS;
 %token PAUSE RESUME SET_SPEED SET_CLEANING_MODE DETECT_OBSTACLE;
+%token <identifier> IF THEN ELSE;
 
 %token CLEANING_MODE_NORMAL CLEANING_MODE_DEEP CLEANING_MODE_QUICK;
 
-%type <identifier> str oper;
+%type <identifier> str oper if_stmt;
 %type <identifier> cleaning_mode;
-
+%type <identifier> expr;
+%type <identifier> func_call;
 %%
 
 program: str {
@@ -203,9 +225,11 @@ program: str {
 
 str: oper       { sprintf($$, "%s", $1); } /* singleline */
     | oper str  { sprintf($$, "%s\n\t%s", $1, $2); }  /* multiline */
+    | if_stmt   { sprintf($$, "%s", $1); } /* if statement */
+    | if_stmt str  { sprintf($$, "%s\n%s", $1, $2); }
     ;
 
-oper: INITIALIZE_ROBOT NUMBER                     { sprintf($$, "robot_t *R%d = initialize_robot(%d);", (int)$2, (int)$2); }
+oper: INITIALIZE_ROBOT NUMBER	                  { sprintf($$, "robot_t *R%d = initialize_robot(%d);", (int)$2, (int)$2); }
     | MOVE_FORWARD IDENTIFIER NUMBER              { sprintf($$, "move_forward(%s, %.2f);", $2, $3); }
     | MOVE_BACKWARD IDENTIFIER NUMBER             { sprintf($$, "move_backward(%s, %.2f);", $2, $3); }
     | TURN_LEFT IDENTIFIER NUMBER                 { sprintf($$, "turn_left(%s, %.2f);", $2, $3); }
@@ -220,6 +244,19 @@ oper: INITIALIZE_ROBOT NUMBER                     { sprintf($$, "robot_t *R%d = 
     | SET_SPEED IDENTIFIER NUMBER                 { sprintf($$, "set_speed(%s, %.2f);", $2, $3); }
     | SET_CLEANING_MODE IDENTIFIER cleaning_mode  { sprintf($$, "set_cleaning_mode(%s, %s);", $2, $3); }
     | DETECT_OBSTACLE IDENTIFIER                  { sprintf($$, "detect_obstacle(%s);", $2); }
+    ;
+
+if_stmt: IF LS expr RS THEN LFS str RFS ELSE LFS str RFS { sprintf($$, "if (%s) {\n\t%s\n} else {\n\t%s\n}", $3, $7, $11);}
+    | IF LS expr RS THEN LFS str RFS { sprintf($$, "if (%s) {\n\t%s\n}", $2, $4);}
+    ;
+
+expr: func_call LT NUMBER { sprintf($$, "%s < %.2f", $1, $3); }
+    | func_call GT NUMBER { sprintf($$, "%s > %.2f", $1, $3); }
+    | func_call LE NUMBER { sprintf($$, "%s <= %.2f", $1, $3); }
+    | func_call GE NUMBER { sprintf($$, "%s >= %.2f", $1, $3); }
+    ;
+
+func_call: CHECK_BATTERY IDENTIFIER { sprintf($$, "check_battery(%s)", $2); }
     ;
 
 cleaning_mode: CLEANING_MODE_NORMAL    { sprintf($$, "CLEANING_MODE_NORMAL"); }
@@ -238,7 +275,7 @@ int main(int argc, char *argv[])
 {
     yyparse();
     return 0;
-} 
+}
 ```
 
 ## 7. Компиляция компилятора
