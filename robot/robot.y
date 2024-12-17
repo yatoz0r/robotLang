@@ -12,6 +12,7 @@
 %token <number> NUMBER;
 %token <identifier> IDENTIFIER;
 %token <identifier> LT GT LE GE EQ NE;
+%token <identifier> LS RS;
 
 %token INITIALIZE_ROBOT MOVE_FORWARD MOVE_BACKWARD TURN_LEFT TURN_RIGHT;
 %token START_CLEANING STOP_CLEANING RETURN_TO_BASE CHECK_BATTERY REPORT_STATUS;
@@ -34,6 +35,7 @@ program: str {
 str: oper       { sprintf($$, "%s", $1); } /* singleline */
     | oper str  { sprintf($$, "%s\n\t%s", $1, $2); }  /* multiline */
     | if_stmt   { sprintf($$, "%s", $1); } /* if statement */
+    | if_stmt str  { sprintf($$, "%s\n%s", $1, $2); }
     ;
 
 oper: INITIALIZE_ROBOT NUMBER	                  { sprintf($$, "robot_t *R%d = initialize_robot(%d);", (int)$2, (int)$2); }
@@ -53,7 +55,7 @@ oper: INITIALIZE_ROBOT NUMBER	                  { sprintf($$, "robot_t *R%d = in
     | DETECT_OBSTACLE IDENTIFIER                  { sprintf($$, "detect_obstacle(%s);", $2); }
     ;
 
-if_stmt: IF expr THEN str ELSE str { sprintf($$, "if (%s) {\n\t%s\n} else {\n\t%s\n}", $2, $4, $6);}
+if_stmt: IF LS expr RS THEN LS str RS ELSE LS str RS { sprintf($$, "if (%s) {\n\t%s\n} else {\n\t%s\n}", $3, $7, $11);}
     | IF expr THEN str { sprintf($$, "if (%s) {\n\t%s\n}", $2, $4);}
     ;
 

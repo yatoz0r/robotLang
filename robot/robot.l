@@ -27,6 +27,9 @@
 "then" { return THEN; }
 "else" { return ELSE; }
 
+"(" {return LS; }
+")" {return RS; }
+
 "<" { return LT; }
 ">" { return GT; }
 "<=" { return LE; }

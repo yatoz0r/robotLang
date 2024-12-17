@@ -48,7 +48,7 @@ ${COMPILER_OUTPUT}: ${COMPILER_SOURCES}
 
 test: ${COMPILER_OUTPUT}
 	@${COMPILER_OUTPUT} < test.txt > test.c
-	@${CC} test.c robot.c -o test
+	@${CC} test.c robot.c -o test -lm
 	@./test
 	@rm -f test.c test
 
