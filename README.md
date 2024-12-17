@@ -21,7 +21,8 @@
 12. `RESUME [robot_id]` - Возобновление работы робота.
 13. `SET_SPEED [robot_id] [speed]` - Установка скорости движения робота.
 14. `SET_CLEANING_MODE [robot_id] [mode]` - Установка режима уборки (normal, deep, или quick).
-
+15. `IF THEN ELSE` - Условные операторы.
+    
 `robot_id` – идентификатор робота.
 `distance` – расстояние (в метрах).
 `angle` – угол (в градусах).
@@ -254,7 +255,7 @@ build/robot_compiler < test.txt > test.c
 ## 9. Запуск программы
 ```bash 
 gcc test.c robot.c -o test -lm
-./test
+./test ( или make test)
 Robot 5 initialized.
 Robot 5 moving forward by 2.50 meters.
 Robot 5 turning left by 90.00 degrees. New angle: 90.00 degrees.
