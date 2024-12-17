@@ -30,6 +30,9 @@
 "(" {return LS; }
 ")" {return RS; }
 
+"{" { return LFS; }
+"}" { return RFS; }
+
 "<" { return LT; }
 ">" { return GT; }
 "<=" { return LE; }
