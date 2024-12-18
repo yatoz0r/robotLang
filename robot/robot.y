@@ -21,7 +21,7 @@
 
 %token CLEANING_MODE_NORMAL CLEANING_MODE_DEEP CLEANING_MODE_QUICK;
 
-%type <identifier> str oper if_stmt;
+%type <identifier> str oper if_stmt stmt stmt_list;
 %type <identifier> cleaning_mode;
 %type <identifier> expr;
 %type <identifier> func_call;
@@ -32,10 +32,14 @@ program: str {
     printf("int main(int argc, char const *argv[])\n{\n\t%s\n\treturn 0;\n}\n", $1); /* entrypoint */
 }
 
-str: oper       { sprintf($$, "%s", $1); } /* singleline */
-    | oper str  { sprintf($$, "%s\n\t%s", $1, $2); }  /* multiline */
-    | if_stmt   { sprintf($$, "%s", $1); } /* if statement */
-    | if_stmt str  { sprintf($$, "%s\n%s", $1, $2); }
+str: stmt_list { sprintf($$, "%s", $1); }
+   ;
+
+stmt_list: stmt_list stmt { sprintf($$, "%s\n\t%s", $1, $2); }
+	| stmt { sprintf($$, "%s", $1); }
+
+stmt: oper
+    | if_stmt 
     ;
 
 oper: INITIALIZE_ROBOT NUMBER	                  { sprintf($$, "robot_t *R%d = initialize_robot(%d);", (int)$2, (int)$2); }
